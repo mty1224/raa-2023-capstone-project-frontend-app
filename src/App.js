@@ -2,7 +2,7 @@
  * @Author: Ma Tingyu (tingyuma) 
  * @Date: 2023-10-27 02:58:15 
  * @Last Modified by: Ma Tingyu (tingyuma)
- * @Last Modified time: 2023-10-27 05:46:16
+ * @Last Modified time: 2023-10-27 11:52:20
  */
 
 
@@ -21,6 +21,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -41,12 +42,32 @@ const DemoPaper = styled(Paper)(({ theme }) => ({
 }));
 
 
+const listOfBrands = [
+  'Amazon',
+  'Amazon Fire Tv',
+  'Amazon Echo',
+  'Amazon Fire',
+  'Amazon Basics',
+  'Amazon Digital Services Inc.',
+]
+
+
+const listOfManufacturers = [
+  'Amazon',
+  'AmazonBasics',
+  'Amazon Digital Services',
+  'Amazon Digital Services, Inc',
+  'Amazon.com',  
+]
+
+
 function App() {
 
   const [asin, setAsin] = React.useState()
   const [brand, setBrand] = React.useState()
   const [manufacturer, setManufacturer] = React.useState()
   const [categories, setCategories] = React.useState()
+  const [topK, setTopK] = React.useState()
 
   const [recommendations, setRecommendations] = React.useState()
 
@@ -58,6 +79,22 @@ function App() {
     setManufacturer(event.target.value);
   };
 
+  const handleClickRecommendButton = () => {
+    const payload = {
+      asinEntry: {
+        brand,
+        manufacturer,
+        categories,
+      },
+      topK,
+    }
+    console.log(payload)
+  }
+
+  React.useEffect(() => {
+    console.log(categories)
+  }, [categories])
+
   const inputPanel = (
     <React.Fragment>
       
@@ -67,6 +104,8 @@ function App() {
           id="outlined-required"
           label="ASIN"
           fullWidth={true}
+          value={asin}
+          onChange={e => setAsin(e.target.value) }
         />
       </Item>
 
@@ -79,10 +118,15 @@ function App() {
             value={brand}
             label="Age"
             onChange={handleChangeBrand}
+            sx={{textAlign: 'left'}}
           >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {
+              listOfBrands.map((brand, idx) => {
+                return (
+                  <MenuItem key={idx+1} value={brand}>{brand}</MenuItem>
+                )
+              })
+            }
           </Select>
         </FormControl>
       </Item>
@@ -96,10 +140,15 @@ function App() {
             value={manufacturer}
             label="Manufacter"
             onChange={handleChangeManufacturer}
+            sx={{textAlign: 'left'}}
           >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {
+              listOfManufacturers.map((manufacturer, idx) => {
+                return (
+                  <MenuItem key={idx+1} value={manufacturer}>{manufacturer}</MenuItem>
+                )
+              })
+            }
           </Select>
         </FormControl>
       </Item>
@@ -110,11 +159,27 @@ function App() {
           id="outlined-required"
           label="Categories"
           multiline
-          rows={15}
+          rows={10}
           fullWidth={true}
+          value={categories}
+          onChange={e => setCategories(e.target.value)}
         />
       </Item>
 
+      <Item>
+        <TextField
+          required
+          id="outlined-required"
+          label="ASIN"
+          fullWidth={true}
+          value={topK}
+          onChange={e => setTopK(e.target.value) }
+        />
+      </Item>
+
+      <Item>
+        <Button variant="contained" onClick={handleClickRecommendButton}>Recommend</Button>
+      </Item>
 
     </React.Fragment>
   )
