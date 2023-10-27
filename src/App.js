@@ -2,7 +2,7 @@
  * @Author: Ma Tingyu (tingyuma) 
  * @Date: 2023-10-27 02:58:15 
  * @Last Modified by: Ma Tingyu (tingyuma)
- * @Last Modified time: 2023-10-27 11:52:20
+ * @Last Modified time: 2023-10-27 12:25:27
  */
 
 
@@ -30,15 +30,6 @@ const Item = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(1),
   textAlign: 'center',
   color: theme.palette.text.secondary,
-}));
-
-
-const DemoPaper = styled(Paper)(({ theme }) => ({
-  width: '100%',
-  height: '70vh',
-  padding: theme.spacing(2),
-  ...theme.typography.body2,
-  textAlign: 'left',
 }));
 
 
@@ -79,7 +70,7 @@ function App() {
     setManufacturer(event.target.value);
   };
 
-  const handleClickRecommendButton = () => {
+  const handleClickRecommendButton = async () => {
     const payload = {
       asinEntry: {
         brand,
@@ -89,6 +80,19 @@ function App() {
       topK,
     }
     console.log(payload)
+
+    const response = await fetch('http://10.2.42.236:5000/recommender-system', {
+      method: 'POST',
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload)
+    })
+    const data = await response.json()
+    console.log(data)
+
+    setRecommendations(JSON.stringify(data.data))
   }
 
   React.useEffect(() => {
@@ -170,7 +174,7 @@ function App() {
         <TextField
           required
           id="outlined-required"
-          label="ASIN"
+          label="Top K"
           fullWidth={true}
           value={topK}
           onChange={e => setTopK(e.target.value) }
@@ -187,9 +191,16 @@ function App() {
   const outputPanel = (
     <React.Fragment>
       <Item>
-        <DemoPaper square={false}>
-          {recommendations}
-        </DemoPaper>
+        <TextField
+          required
+          id="outlined-required"
+          label="Recommendations"
+          multiline
+          rows={25}
+          fullWidth={true}
+          value={recommendations}
+          onChange={ e => {} }
+        />
       </Item>
     </React.Fragment>
   )
@@ -202,7 +213,7 @@ function App() {
       <Container maxWidth="l">
         <Box sx={{ bgcolor: '#cfe8fc', height: '100vh' }} >
         
-          <Grid container spacing={2} padding={5}>
+          <Grid container spacing={1} padding={5}>
 
             <Grid xs={12}>
               <Item sx={{maxHeight: '8vh'}}>
@@ -215,7 +226,7 @@ function App() {
             <Grid xs={4}>
               <Item>
                 <Container sx={{height: '75vh', minHeight: '75vh'}}>
-                  <Stack spacing={2}>
+                  <Stack spacing={1}>
                     {inputPanel}
                   </Stack>
                 </Container>
