@@ -2,7 +2,7 @@
  * @Author: Ma Tingyu (tingyuma) 
  * @Date: 2023-10-27 02:58:15 
  * @Last Modified by: Ma Tingyu (tingyuma)
- * @Last Modified time: 2023-10-28 00:45:06
+ * @Last Modified time: 2023-10-28 05:36:42
  */
 
 
@@ -75,8 +75,9 @@ function App() {
 
   const [review, setReview] = React.useState()
 
-  const [recommendations, setRecommendations] = React.useState()
   const [outputInfo, setOutputInfo] = React.useState()
+
+  const [responseData, setResponseData] = React.useState()
 
   const handleChangeASIN = (event) => {
     const selectedAsin = event.target.value
@@ -92,7 +93,7 @@ function App() {
         categories: selectedAsinEntry?.categories,
       },
       textData: [review],
-      topK: 3,
+      topK: 10,
     }
     console.log(payload)
 
@@ -104,10 +105,10 @@ function App() {
       },
       body: JSON.stringify(payload)
     })
-    const data = await response.json()
-    console.log(data)
+    const responseData = await response.json()
+    console.log(responseData)
 
-    setRecommendations(data.data)
+    setResponseData(responseData)
   }
 
   React.useEffect(() => {
@@ -120,13 +121,14 @@ function App() {
   }, [selectedAsinEntry])
 
   React.useEffect(() => {
+    const sentiment = responseData?.sentiment
+    const recommendations = responseData?.data
     console.log(recommendations)
-    if (recommendations) {
+    if (sentiment === 'Positive') {
       let o = []
-      recommendations.map((e, _) => {
-        o.push(`ASIN: ${e['asin']}`)
-        o.push(`brand: ${e['brand']}`)
-        o.push(`manufacturer: ${e['manufacturer']}`)
+      recommendations.map((e, idx) => {
+        o.push(`Sentiment Prediction: ${sentiment} | Recommendations:\n`)
+        o.push(`[${idx + 1}] ASIN: ${e['asin']}, brand: ${e['brand']}, manufacturer: ${e['manufacturer']}`)
         o.push(`categories: ${e['categories']}`)
         if (e['cosineSimilarityScore']){
           o.push(`cosineSimilarityScore: ${e['cosineSimilarityScore']}`)
@@ -135,9 +137,11 @@ function App() {
       })
       setOutputInfo(o.join('\n'))
     } else {
-      setOutputInfo()
+      let o = []
+      o.push(`Sentiment Prediction: ${sentiment} | No recommendations since review is negative. \n`)
+      setOutputInfo(o.join('\n'))
     }
-  }, [recommendations])
+  }, [responseData])
 
   const inputPanel = (
     <React.Fragment>
