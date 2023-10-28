@@ -2,7 +2,7 @@
  * @Author: Ma Tingyu (tingyuma) 
  * @Date: 2023-10-27 02:58:15 
  * @Last Modified by: Ma Tingyu (tingyuma)
- * @Last Modified time: 2023-10-27 12:25:27
+ * @Last Modified time: 2023-10-28 00:45:06
  */
 
 
@@ -52,32 +52,47 @@ const listOfManufacturers = [
 ]
 
 
+const asinEntries = [
+  {
+    asin: "B00QL1ZN3G",
+    brand: "amazon",
+    categories: "case,kindle_store,amazon_device_accessory,accessory,tablet_accessory",
+    manufacturer: "amazon"
+  },
+  {
+    asin: "B00U3FPN4U",
+    brand: "amazon_fire_tv",
+    categories: "back_college,college_electronics,college_tv_home_theater,electronics,tv_home_theater,streaming_device,featured_brand,amazon_device,holiday_shop,way_shop,tv_home_theater,streaming_medium_player,streaming_medium_player,tv_entertainment,video_game,kindle_store,electronics_feature,kid_family,fire_tv",
+    manufacturer: "amazon",
+  }
+]
+
+
 function App() {
 
-  const [asin, setAsin] = React.useState()
-  const [brand, setBrand] = React.useState()
-  const [manufacturer, setManufacturer] = React.useState()
-  const [categories, setCategories] = React.useState()
-  const [topK, setTopK] = React.useState()
+  const [selectedAsinEntry, setSelectedAsinEntry] = React.useState()
+  const [selectedAsinInfo, setSelectedAsinInfo] = React.useState()
+
+  const [review, setReview] = React.useState()
 
   const [recommendations, setRecommendations] = React.useState()
+  const [outputInfo, setOutputInfo] = React.useState()
 
-  const handleChangeBrand = (event) => {
-    setBrand(event.target.value);
-  };
-
-  const handleChangeManufacturer = (event) => {
-    setManufacturer(event.target.value);
-  };
+  const handleChangeASIN = (event) => {
+    const selectedAsin = event.target.value
+    const asinEntry = asinEntries.filter(entry => entry.asin === selectedAsin)[0]
+    setSelectedAsinEntry(asinEntry)
+  }
 
   const handleClickRecommendButton = async () => {
     const payload = {
       asinEntry: {
-        brand,
-        manufacturer,
-        categories,
+        brand: selectedAsinEntry?.brand,
+        manufacturer: selectedAsinEntry?.manufacturer,
+        categories: selectedAsinEntry?.categories,
       },
-      topK,
+      textData: [review],
+      topK: 3,
     }
     console.log(payload)
 
@@ -92,64 +107,56 @@ function App() {
     const data = await response.json()
     console.log(data)
 
-    setRecommendations(JSON.stringify(data.data))
+    setRecommendations(data.data)
   }
 
   React.useEffect(() => {
-    console.log(categories)
-  }, [categories])
+    console.log(selectedAsinEntry)
+    if (selectedAsinEntry?.asin) {
+      const asinInfo = 'Brand: ' + selectedAsinEntry?.brand + '\n' + 'Manufacturer: ' + selectedAsinEntry?.manufacturer + '\n' + 'Categories: \n' + selectedAsinEntry?.categories
+      setSelectedAsinInfo(asinInfo)
+      console.log(asinInfo)
+    }
+  }, [selectedAsinEntry])
+
+  React.useEffect(() => {
+    console.log(recommendations)
+    if (recommendations) {
+      let o = []
+      recommendations.map((e, _) => {
+        o.push(`ASIN: ${e['asin']}`)
+        o.push(`brand: ${e['brand']}`)
+        o.push(`manufacturer: ${e['manufacturer']}`)
+        o.push(`categories: ${e['categories']}`)
+        if (e['cosineSimilarityScore']){
+          o.push(`cosineSimilarityScore: ${e['cosineSimilarityScore']}`)
+        }
+        o.push('\n')
+      })
+      setOutputInfo(o.join('\n'))
+    } else {
+      setOutputInfo()
+    }
+  }, [recommendations])
 
   const inputPanel = (
     <React.Fragment>
       
       <Item>
-        <TextField
-          required
-          id="outlined-required"
-          label="ASIN"
-          fullWidth={true}
-          value={asin}
-          onChange={e => setAsin(e.target.value) }
-        />
-      </Item>
-
-      <Item>
         <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Brand</InputLabel>
+          <InputLabel id="demo-simple-select-label">ASIN</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={brand}
-            label="Age"
-            onChange={handleChangeBrand}
+            defaultValue={selectedAsinEntry?.asin}
+            label="ASIN"
+            onChange={handleChangeASIN}
             sx={{textAlign: 'left'}}
           >
             {
-              listOfBrands.map((brand, idx) => {
+              asinEntries.map((entry, idx) => {
                 return (
-                  <MenuItem key={idx+1} value={brand}>{brand}</MenuItem>
-                )
-              })
-            }
-          </Select>
-        </FormControl>
-      </Item>
-      
-      <Item>
-        <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Manufacter</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={manufacturer}
-            label="Manufacter"
-            onChange={handleChangeManufacturer}
-            sx={{textAlign: 'left'}}
-          >
-            {
-              listOfManufacturers.map((manufacturer, idx) => {
-                return (
-                  <MenuItem key={idx+1} value={manufacturer}>{manufacturer}</MenuItem>
+                  <MenuItem key={idx+1} value={entry?.asin}>{entry?.asin}</MenuItem>
                 )
               })
             }
@@ -157,16 +164,16 @@ function App() {
         </FormControl>
       </Item>
 
-      <Item>
+     <Item>
         <TextField
           required
           id="outlined-required"
-          label="Categories"
+          // label="Categories"
           multiline
           rows={10}
           fullWidth={true}
-          value={categories}
-          onChange={e => setCategories(e.target.value)}
+          value={selectedAsinInfo}
+          onChange={e => {}}
         />
       </Item>
 
@@ -174,10 +181,12 @@ function App() {
         <TextField
           required
           id="outlined-required"
-          label="Top K"
+          label="Review"
           fullWidth={true}
-          value={topK}
-          onChange={e => setTopK(e.target.value) }
+          defaultValue={review}
+          multiline
+          rows={5}
+          onChange={e => {setReview(e.target.value)}}
         />
       </Item>
 
@@ -194,12 +203,11 @@ function App() {
         <TextField
           required
           id="outlined-required"
-          label="Recommendations"
+          // label="Recommendations"
           multiline
           rows={25}
           fullWidth={true}
-          value={recommendations}
-          onChange={ e => {} }
+          value={outputInfo}
         />
       </Item>
     </React.Fragment>
