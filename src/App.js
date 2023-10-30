@@ -2,7 +2,7 @@
  * @Author: Ma Tingyu (tingyuma) 
  * @Date: 2023-10-27 02:58:15 
  * @Last Modified by: Ma Tingyu (tingyuma)
- * @Last Modified time: 2023-10-30 04:36:17
+ * @Last Modified time: 2023-10-30 05:32:13
  */
 
 
@@ -124,23 +124,17 @@ function App() {
     const sentiment = responseData?.sentiment
     const recommendations = responseData?.data
     console.log(recommendations)
-    if (sentiment === 'Positive') {
-      let o = []
-      recommendations.map((e, idx) => {
-        o.push(`Sentiment Prediction: ${sentiment} | Recommendations:\n`)
-        o.push(`[${idx + 1}] ASIN: ${e['asin']}, brand: ${e['brand']}, manufacturer: ${e['manufacturer']}`)
-        o.push(`categories: ${e['categories']}`)
-        if (e['cosineSimilarityScore']){
-          o.push(`cosineSimilarityScore: ${e['cosineSimilarityScore']}`)
-        }
-        o.push('\n')
-      })
-      setOutputInfo(o.join('\n'))
-    } else {
-      let o = []
-      o.push(`Sentiment Prediction: ${sentiment} | No recommendations since review is negative. \n`)
-      setOutputInfo(o.join('\n'))
-    }
+    let o = []
+    recommendations?.map((e, idx) => {
+      o.push(`Sentiment Prediction: ${sentiment} | Recommendations:\n`)
+      o.push(`[${idx + 1}] ASIN: ${e['asin']}, brand: ${e['brand']}, manufacturer: ${e['manufacturer']}`)
+      o.push(`categories: ${e['categories']}`)
+      if (e['cosineSimilarityScore']){
+        o.push(`cosineSimilarityScore: ${e['cosineSimilarityScore']}`)
+      }
+      o.push('\n')
+    })
+    setOutputInfo(o.join('\n'))
   }, [responseData])
 
   const inputPanel = (
