@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  raa2023-capstone-project-frontend-app:
+    container_name: raa2023-capstone-proj-front-app
+    build: 
+      context: .
+    ports:
+      - "3010:3000"
+    privileged: true
+    restart: always

@@ -1,5 +1,5 @@
 {
-  "name": "raa2013-capstone-project-backend-app",
+  "name": "raa2013-capstone-project-front-app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -43,5 +43,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://10.2.42.236:5000"
+  "proxy": "http://10.2.42.236:5010"
 }

@@ -2,7 +2,7 @@
  * @Author: Ma Tingyu (tingyuma) 
  * @Date: 2023-10-27 02:58:15 
  * @Last Modified by: Ma Tingyu (tingyuma)
- * @Last Modified time: 2023-10-28 05:36:42
+ * @Last Modified time: 2023-10-30 04:36:17
  */
 
 
@@ -97,7 +97,7 @@ function App() {
     }
     console.log(payload)
 
-    const response = await fetch('http://10.2.42.236:5000/recommender-system', {
+    const response = await fetch('http://10.2.42.236:5010/recommender-system', {
       method: 'POST',
       mode: "cors",
       headers: {
